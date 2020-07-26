@@ -1,5 +1,8 @@
 const fetch = require('node-fetch');
 const dayjs = require('dayjs');
+const timeZone = require('dayjs-ext/plugin/timeZone');
+
+dayjs.extend(timeZone);
 
 const rends = [
   "rend",
@@ -40,7 +43,7 @@ const wbTypeRegex = new RegExp([...rends, ...onys, ...nefs, ...hakkars].reduce((
 
 const getWorldBuffs = async (auth) => {
 
-  const yesterday = dayjs().subtract(24, 'hour');
+  const yesterday = dayjs(undefined, { utc: true }).subtract(24, 'hour');
 
   const worldBuffsResponse = await fetch(`https://discord.com/api/v6/channels/697741587173605397/messages?limit=100`, {
     headers: {
@@ -48,16 +51,20 @@ const getWorldBuffs = async (auth) => {
     }
   });
 
-  if(!worldBuffsResponse.ok) {
+  if (!worldBuffsResponse.ok) {
     throw Error(`Could not fetch world buff info from discord; ${worldBuffsResponse.status}`);
   }
 
   const messages = await worldBuffsResponse.json();
 
-  return messages.filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
+  return messages.map(x => {
+    return {
+      timestamp: dayjs(x.timestamp, { utc: true }),
+      ...x
+    }
+  }).filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
 
-    const serverTime = dayjs(new Date(x.timestamp).toLocaleString("en-US", { timeZone: "America/New_York" }));
-    console.log(serverTime);
+    const serverTime = dayjs(x.timestamp, { format: "America/New_York" });
 
     const content = scrubBadData(x.content);
     if (content == null) {
@@ -79,7 +86,7 @@ const getWorldBuffs = async (auth) => {
 
     return {
       kind: toWorldBuffKind(type[0].toLowerCase()),
-      when: when,
+      when: dayjs(when, { utc: true }).toISOString(),
       meta: {
         timestamp: x.timestamp,
         original: x.content,

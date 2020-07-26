@@ -11,6 +11,7 @@ const { Header, Content, Footer } = Layout;
 
 const last24Hours = dayjs().subtract(24, 'hour');
 const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const serverTimeZone = 'America/New_York';
 
 const cardBgColorByWbKind = {
   'ony': '#B54055',
@@ -97,7 +98,7 @@ function App() {
   );
 }
 
-function worldBuffCard(worldBuff, format, displayRemindMe = true) {
+function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
   return (
     <Card
       key={worldBuff.meta.timestamp}
@@ -107,7 +108,7 @@ function worldBuffCard(worldBuff, format, displayRemindMe = true) {
       style={{ backgroundColor: cardBgColorByWbKind[worldBuff.kind], filter: 'grayscale(30%)' }}
     >
       <Tooltip title={`${worldBuff.meta.username}: ${worldBuff.meta.original}`} placement="rightBottom">
-        <p>{formatDate(worldBuff.when, format)}</p>
+        <p>{formatDate(worldBuff.when, isServerTime)}</p>
       </Tooltip>
     </Card>
   )
@@ -116,7 +117,7 @@ function worldBuffCard(worldBuff, format, displayRemindMe = true) {
 function formatDate(date, isServerTime) {
   return new Date(date).toLocaleDateString(undefined, {
     weekday: 'long', hour: 'numeric', minute: 'numeric',
-    timeZone: isServerTime ? 'America/New_York' : localTimeZone
+    timeZone: isServerTime ? serverTimeZone : localTimeZone
   })
 }
 
