@@ -40,7 +40,7 @@ app.get('*', async (request, reply) => {
   reply.type('text/html').send(stream);
 });
 
-app.listen(process.env.PORT || 5000, (err, address) => {
+app.listen(process.env.PORT || 5000, '0.0.0.0', (err, address) => {
   if (err) {
     app.log.error(err)
     process.exit(1)
