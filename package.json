@@ -10,6 +10,7 @@
     "antd": "^4.4.2",
     "dayjs": "^1.8.29",
     "dayjs-ext": "^2.2.0",
+    "dayjs-plugin-utc": "^0.1.2",
     "discord.js": "^12.2.0",
     "dotenv-flow": "^3.2.0",
     "fastify": "^3.0.2",

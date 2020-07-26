@@ -1,8 +1,10 @@
 const fetch = require('node-fetch');
 const dayjs = require('dayjs');
 const timeZone = require('dayjs-ext/plugin/timeZone');
+const utc = require('dayjs/plugin/utc');
 
 dayjs.extend(timeZone);
+dayjs.extend(utc);
 
 const rends = [
   "rend",
@@ -39,11 +41,16 @@ const toWorldBuffKind = (wb) => {
   }
 }
 
+function getTimeZoneOffset(datetime) {
+  const centralOffset = -6;
+  return (datetime.utcOffset() / 60) - (centralOffset);
+}
+
 const wbTypeRegex = new RegExp([...rends, ...onys, ...nefs, ...hakkars].reduce((a, b) => `${a}|${b}`), 'i');
 
 const getWorldBuffs = async (auth) => {
 
-  const yesterday = dayjs(undefined, { utc: true }).subtract(24, 'hour');
+  const yesterday = dayjs().utc().subtract(24, 'hour');
 
   const worldBuffsResponse = await fetch(`https://discord.com/api/v6/channels/697741587173605397/messages?limit=100`, {
     headers: {
@@ -59,12 +66,18 @@ const getWorldBuffs = async (auth) => {
 
   return messages.map(x => {
     return {
-      timestamp: dayjs(x.timestamp, { utc: true }),
-      ...x
+      ...x,
+      timestamp: dayjs(x.timestamp).utc()
     }
-  }).filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
+  }).filter(x => x.timestamp.isAfter(yesterday)).map(x => {
 
-    const serverTime = dayjs(x.timestamp, { format: "America/New_York" });
+    const timeZone = 'America/New_York';
+    const serverTime = dayjs(x.timestamp.format(), { timeZone });
+
+    if (x.author.username === 'Ferrus <Prestige Worldwide>') {
+      console.log("TIEMSTAMP", x.timestamp.toISOString());
+      console.log("serverTime", serverTime.toISOString());
+    }
 
     const content = scrubBadData(x.content);
     if (content == null) {
@@ -74,19 +87,29 @@ const getWorldBuffs = async (auth) => {
     const [type, date] = content;
     const [match, hours = 0, minutes = 0] = date[0].map(Number);
 
-    // Translate to 24 hour clock 
-    const hoursAdjusted = (hours < 12 && serverTime.hour() >= 12) ? hours + 12 : hours;
+    // Translate to 24 hour clock
+    const hoursAdjusted = ((hours < 12 && serverTime.hour() >= 12) ? hours + 12 : hours)
+      // The discord API is sending me back dates in central time zone
+      - getTimeZoneOffset(serverTime);
 
-    const nextDay = serverTime.isAfter(dayjs(serverTime).hour(hoursAdjusted));
+    const nextDay = hoursAdjusted > 0 && serverTime.isAfter(serverTime.hour(hoursAdjusted));
+
+    if (x.author.username === 'Ferrus <Prestige Worldwide>') {
+      console.log("serverTime", serverTime.toISOString());
+      console.log("serverTimeAfter", serverTime.hour(hoursAdjusted).toISOString());
+      console.log("hoursAdjusted", hoursAdjusted);
+      console.log("nextDay", nextDay);
+      console.log("time zone difference in hours", (serverTime.utcOffset() / 60) - (-6));
+    }
 
     const when = serverTime
       .add(nextDay ? 1 : 0, 'day')
-      .hour(hoursAdjusted - 1) // Subtract because of my discord using CST. TODO: Timezones, daylight saving and shit
-      .minute(minutes ? minutes : 0);
+      .hour(hoursAdjusted)
+      .minute(minutes ? minutes : 0)
 
     return {
       kind: toWorldBuffKind(type[0].toLowerCase()),
-      when: dayjs(when, { utc: true }).toISOString(),
+      when: when.toISOString(),
       meta: {
         timestamp: x.timestamp,
         original: x.content,
