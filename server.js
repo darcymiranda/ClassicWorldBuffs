@@ -9,7 +9,7 @@ const cache = require('abstract-cache')({ useAwait: true });
 require('dotenv-flow').config();
 
 app.register(require('fastify-static'), {
-  root: path.join(__dirname, '../build')
+  root: path.join(__dirname, 'build')
 });
 
 app.register(require('fastify-cors'), {
@@ -36,11 +36,11 @@ app.get('/api/worldBuffs', async (request, reply) => {
 });
 
 app.get('*', async (request, reply) => {
-  const stream = fs.createReadStream(__dirname + '../build/index.html');
+  const stream = fs.createReadStream(__dirname + 'build/index.html');
   reply.type('text/html').send(stream);
 });
 
-app.listen(process.env.PORT || 80, function (err, address) {
+app.listen(process.env.PORT || 5000, (err, address) => {
   if (err) {
     app.log.error(err)
     process.exit(1)

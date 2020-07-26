@@ -48,6 +48,10 @@ const getWorldBuffs = async (auth) => {
     }
   });
 
+  if(!worldBuffsResponse.ok) {
+    throw Error(`Could not fetch world buff info from discord; ${worldBuffsResponse.status}`);
+  }
+
   const messages = await worldBuffsResponse.json();
 
   return messages.filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
