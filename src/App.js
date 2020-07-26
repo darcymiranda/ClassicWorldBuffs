@@ -26,7 +26,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const response = await fetch('http://localhost:5001/worldBuffs');
+      const response = await fetch('/api/worldBuffs');
       const worldBuffs = await response.json();
       setWorldBuffs(worldBuffs.map(x => {
         return {

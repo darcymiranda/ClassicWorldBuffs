@@ -1,5 +1,5 @@
 {
-  "name": "world-buffs",
+  "name": "classic-world-buffs",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -14,18 +14,22 @@
     "dotenv-flow": "^3.2.0",
     "fastify": "^3.0.2",
     "fastify-cors": "^4.0.0",
+    "fastify-static": "^3.2.0",
     "moment": "^2.27.0",
     "node-fetch": "^2.6.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1"
   },
+  "devDependencies": {
+    "concurrently": "^5.2.0"
+  },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"react-scripts start\" \"node index\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "heroku-postbuild": "npm run build"
+    "heroku-postbuild": "react-scripts build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -41,5 +45,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:3001",
 }

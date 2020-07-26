@@ -52,39 +52,15 @@ const getWorldBuffs = async (auth) => {
 
   return messages.filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
 
-    // Ignore people say when something was dropped
-    if (x.content.includes('dropped')) {
-      return null;
-    }
-
-    // Ignore assholes
-    if (['planned'].some(ignore => x.content.includes(ignore))) {
-      return null;
-    }
-
-    if (x.test)
-      console.log(x.timestamp);
-
-    const type = x.content.match(wbTypeRegex);
-    if (!type) {
-      return null;
-    }
-
-    // TODO: Add support for "in x minutes" in the future, just drop for now
-    if (x.content.match(/\b([0-9]{0,2})\s*(minutes|min|m)/i)) {
-      return null;
-    }
-
-    const date = x.content.match(/([0-1]?[0-9]|2[0-3]):?([0-5][0-9])?/g);
-    if (!date) {
-      return null;
-    }
-
     const serverTime = dayjs(new Date(x.timestamp).toLocaleString("en-US", { timeZone: "America/New_York" }));
 
-    const [hours, minutes] = date
-      .pop() // Always get last one because some people copy paste with timestamp in discord
-      .split(':').map(Number);
+    const content = scrubBadData(x.content);
+    if (content == null) {
+      return null;
+    }
+
+    const [type, date] = content;
+    const [match, hours = 0, minutes = 0] = date[0].map(Number);
 
     // Translate to 24 hour clock 
     const hoursAdjusted = (hours < 12 && serverTime.hour() >= 12) ? hours + 12 : hours;
@@ -110,6 +86,40 @@ const getWorldBuffs = async (auth) => {
       }
     }
   }).filter(x => x).sort((a, b) => a.when - b.when);
+};
+
+function scrubBadData(content) {
+  // Sometimes people copy paste other people with discord timestamps
+  if (content[0] === '[') {
+    return null;
+  }
+
+  // Ignore people say when something was dropped
+  if (content.includes('dropped')) {
+    return null;
+  }
+
+  // Ignore idiots
+  if (['planned', 'H0H'].some(ignore => content.includes(ignore))) {
+    return null;
+  }
+
+  const type = content.match(wbTypeRegex);
+  if (!type) {
+    return null;
+  }
+
+  // TODO: Add support for "in x minutes" in the future, just drop for now
+  if (content.match(/\b([0-9]{0,2})\s*(minutes|min|m)/i)) {
+    return null;
+  }
+
+  const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?/g)];
+  if (!date.length) {
+    return null;
+  }
+
+  return [type, date];
 }
 
 module.exports = {
