@@ -37,6 +37,8 @@ function App() {
     })();
   }, []);
 
+  console.log(localTimeZone);
+
   const previousWorldBuffs = useMemo(() =>
     worldBuffs.map(x => {
       return { ...x, when: isServerTime ? x.when : new Date(new Date(x.when).toLocaleString(undefined, { timeZone: localTimeZone })) }
@@ -114,7 +116,7 @@ function worldBuffCard(worldBuff, format, displayRemindMe = true) {
 function formatDate(date, isServerTime) {
   return new Date(date).toLocaleDateString(undefined, {
     weekday: 'long', hour: 'numeric', minute: 'numeric',
-    timeZone: isServerTime ? 'America/Toronto' : Intl.DateTimeFormat().resolvedOptions().timeZone
+    timeZone: isServerTime ? 'America/New_York' : localTimeZone
   })
 }
 

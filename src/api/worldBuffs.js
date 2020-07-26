@@ -57,6 +57,7 @@ const getWorldBuffs = async (auth) => {
   return messages.filter(x => dayjs(x.timestamp).isAfter(yesterday)).map(x => {
 
     const serverTime = dayjs(new Date(x.timestamp).toLocaleString("en-US", { timeZone: "America/New_York" }));
+    console.log(serverTime);
 
     const content = scrubBadData(x.content);
     if (content == null) {
