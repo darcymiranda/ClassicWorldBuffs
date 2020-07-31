@@ -84,7 +84,7 @@ const getWorldBuffs = async (auth) => {
 
     return {
       kind: toWorldBuffKind(type[0].toLowerCase()),
-      when: new Date(when).toLocaleString("en-US", { timeZone: 'utc' }),
+      when: when.toISOString(),
       meta: {
         timestamp: x.timestamp,
         original: x.content,
