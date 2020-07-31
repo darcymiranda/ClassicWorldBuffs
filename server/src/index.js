@@ -3,13 +3,13 @@ const fs = require('fs');
 const app = require('fastify')({
   logger: true,
 });
-const { getWorldBuffs } = require('./src/api/worldBuffs');
+const { getWorldBuffs } = require('./api/worldBuffs');
 const cache = require('abstract-cache')({ useAwait: true });
 
 require('dotenv-flow').config();
 
 app.register(require('fastify-static'), {
-  root: path.join(__dirname, 'build')
+  root: path.join(__dirname, '../../client/build')
 });
 
 app.register(require('fastify-cors'), {
@@ -36,7 +36,7 @@ app.get('/api/worldBuffs', async (request, reply) => {
 });
 
 app.get('*', async (request, reply) => {
-  const stream = fs.createReadStream(__dirname + 'build/index.html');
+  const stream = fs.createReadStream(__dirname + '../../client/build/index.html');
   reply.type('text/html').send(stream);
 });
 

@@ -2,14 +2,11 @@ import React, { useEffect, useState, useMemo } from 'react';
 import './App.css';
 import { Card, Row, Col, Layout, Switch, Empty, Tooltip } from 'antd';
 import "antd/dist/antd.css";
-import dayjs from 'dayjs'
-import timeZone from 'dayjs-ext/plugin/timeZone';
-
-dayjs.extend(timeZone);
+import moment from 'moment-timezone'
 
 const { Header, Content, Footer } = Layout;
 
-const last24Hours = dayjs().subtract(24, 'hour');
+const last24Hours = moment().subtract(24, 'hour');
 const localTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 const serverTimeZone = 'America/New_York';
 
@@ -38,14 +35,12 @@ function App() {
     })();
   }, []);
 
-  console.log(localTimeZone);
-
   const previousWorldBuffs = useMemo(() =>
     worldBuffs.map(x => {
       return { ...x, when: isServerTime ? x.when : new Date(new Date(x.when).toLocaleString(undefined, { timeZone: localTimeZone })) }
     })
       .sort((a, b) => b.when - a.when)
-      .filter(x => x.when > last24Hours && x.when < dayjs())
+      .filter(x => x.when > last24Hours && x.when < moment())
       .map(x => {
         return (worldBuffCard(x, isServerTime, false))
       }),
@@ -57,7 +52,7 @@ function App() {
       return { ...x, when: isServerTime ? x.when : new Date(new Date(x.when).toLocaleString(undefined, { timeZone: localTimeZone })) }
     })
       .sort((a, b) => a.when - b.when)
-      .filter(x => x.when > dayjs())
+      .filter(x => x.when > moment())
       .map(x => {
         return (worldBuffCard(x, isServerTime))
       }),
@@ -93,7 +88,7 @@ function App() {
           </Col>
         </Row>
       </Content>
-      <Footer style={{ textAlign: 'center' }}>@Ploh#7124</Footer>
+      <Footer style={{ textAlign: 'center' }}></Footer>
     </Layout>
   );
 }
@@ -122,7 +117,7 @@ function formatDate(date, isServerTime) {
 }
 
 function remindMeLink(title, date) {
-  return `https://vclock.com/timer/#date=${dayjs(date, { timeZone: localTimeZone }).format('YYYY-MM-DDTHH:mm')}&title=${title.toUpperCase()}+&sound=classic&loop=0`
+  return `https://vclock.com/timer/#date=${moment(date, { timeZone: localTimeZone }).format('YYYY-MM-DDTHH:mm')}&title=${title.toUpperCase()}+&sound=classic&loop=0`
 }
 
 export default App;
