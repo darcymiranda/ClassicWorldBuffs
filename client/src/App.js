@@ -102,6 +102,15 @@ function App() {
 }
 
 function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
+  const dateFormat = displayRemindMe ? {
+    sameDay: '[Today] h:mm A',
+    nextDay: '[Tomorrow] h:mm A',
+    lastDay: '[Yesterday] h:mm A',
+  } : {
+    sameDay: 'dddd h:mm A',
+    lastDay: 'dddd h:mm A',
+    lastWeek: 'dddd h:mm A',
+  }
   return (
     <Card
       key={worldBuff.meta.timestamp}
@@ -114,19 +123,12 @@ function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
         title={<span style={{ textTransform: 'uppercase' }}>{worldBuff.kind}</span>}
         description={
           <Tooltip title={`${worldBuff.meta.username}: ${worldBuff.meta.original}`} placement="rightBottom">
-            <p>{formatDate(worldBuff.when, isServerTime)}</p>
+            <p>{moment(worldBuff.when).tz(isServerTime ? serverTimeZone : localTimeZone).calendar(dateFormat)}</p>
           </Tooltip>
         }
       />
     </Card>
   )
-}
-
-function formatDate(date, isServerTime) {
-  return new Date(date).toLocaleDateString(undefined, {
-    weekday: 'long', hour: 'numeric', minute: 'numeric',
-    timeZone: isServerTime ? serverTimeZone : localTimeZone
-  })
 }
 
 function remindMeLink(title, date) {
