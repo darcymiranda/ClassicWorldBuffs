@@ -86,7 +86,7 @@ const getWorldBuffs = async (auth) => {
     }
 
     const [type, date] = content;
-    const [, hours = 0, minutes = 0, ampm] = date[0].map(x => Number.isInteger(x) ? Number(x) : !x ? x : x.toLowerCase());
+    const [, hours = 0, minutes = 0, ampm] = date[0].map(x => x == Number(x) ? Number(x) : !x ? x : x.toLowerCase());
 
     const hoursAdjusted = to24Clock(hours, timestamp, ampm);
 
@@ -101,6 +101,16 @@ const getWorldBuffs = async (auth) => {
     }
 
     const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
+
+    if (x.author.username === 'test2') {
+      console.log("hoursAdjusted", hoursAdjusted);
+      console.log("ampm", ampm);
+      console.log("timestampAdjusted", timestampAdjusted);
+      console.log("hours", hours);
+      console.log("nextDay", nextDay);
+      console.log("timestamp", timestamp);
+      console.log("timestamp.hour(hoursAdjusted)", timestamp.hour(hoursAdjusted));
+    }
 
     const when = timestampAdjusted
       .add(nextDay ? 1 : 0, 'day')
