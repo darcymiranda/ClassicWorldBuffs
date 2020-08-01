@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import './App.css';
-import { Card, Row, Col, Layout, Switch, Empty, Tooltip } from 'antd';
+import { Card, Row, Col, Layout, Switch, Empty, Tooltip, Avatar } from 'antd';
 import "antd/dist/antd.css";
 import moment from 'moment-timezone'
 
+const { Meta } = Card;
 const { Header, Content, Footer } = Layout;
 
 const last24Hours = moment().subtract(24, 'hour');
@@ -16,6 +17,13 @@ const cardBgColorByWbKind = {
   'hakkar': '#77CBB9',
   'rend': '#75B8C8'
 }
+
+const iconByWbKind = {
+  'ony': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
+  'nef': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
+  'hakkar': 'https://wow.zamimg.com/images/wow/icons/large/ability_creature_poison_05.jpg',
+  'rend': 'https://wow.zamimg.com/images/wow/icons/large/spell_arcane_teleportorgrimmar.jpg',
+};
 
 function App() {
 
@@ -97,14 +105,19 @@ function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
   return (
     <Card
       key={worldBuff.meta.timestamp}
-      title={<span style={{ textTransform: 'uppercase' }}>{worldBuff.kind}</span>}
       extra={displayRemindMe && <a href={remindMeLink(worldBuff.kind, worldBuff.when)} target="blank">Remind me</a>}
       headStyle={{ border: 0 }}
       style={{ backgroundColor: cardBgColorByWbKind[worldBuff.kind], filter: 'grayscale(30%)' }}
     >
-      <Tooltip title={`${worldBuff.meta.username}: ${worldBuff.meta.original}`} placement="rightBottom">
-        <p>{formatDate(worldBuff.when, isServerTime)}</p>
-      </Tooltip>
+      <Meta
+        avatar={<Avatar src={iconByWbKind[worldBuff.kind]} />}
+        title={<span style={{ textTransform: 'uppercase' }}>{worldBuff.kind}</span>}
+        description={
+          <Tooltip title={`${worldBuff.meta.username}: ${worldBuff.meta.original}`} placement="rightBottom">
+            <p>{formatDate(worldBuff.when, isServerTime)}</p>
+          </Tooltip>
+        }
+      />
     </Card>
   )
 }
