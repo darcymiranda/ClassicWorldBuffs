@@ -64,31 +64,15 @@ const getWorldBuffs = async (auth) => {
     const timeZone = 'America/New_York';
     const timestamp = x.timestamp.tz(timeZone);
 
-    const content = scrubData(x.content);
-    if (content == null) {
+    const type = getType(x.content);
+    if (type == null) {
       return null;
     }
 
-    const [type, date] = content;
-    const [, hours = 0, minutes = 0, ampm] = date[0].map(x => x == Number(x) ? Number(x) : !x ? x : x.toLowerCase());
-
-    const hoursAdjusted = to24Clock(hours, timestamp, ampm);
-
-    let timestampAdjusted = moment(timestamp).hour(hoursAdjusted);
-
-    // Midnight edge case. This is a guess to most likely be correct
-    if (!ampm) {
-      const hoursDifference = timestamp.diff(timestampAdjusted, 'hours', true);
-      if (Math.abs(hoursDifference) >= 6) {
-        timestampAdjusted = timestampAdjusted.hour(hoursAdjusted - 12);
-      }
+    const when = adjustTimestamp(timestamp, x.content);
+    if (when == null) {
+      return null;
     }
-
-    const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
-
-    const when = timestampAdjusted
-      .add(nextDay ? 1 : 0, 'day')
-      .minute(minutes ? minutes : 0);
 
     return {
       kind: toWorldBuffKind(type[0].toLowerCase()),
@@ -102,14 +86,7 @@ const getWorldBuffs = async (auth) => {
   }).filter(x => x).sort((a, b) => a.when - b.when);
 };
 
-function to24Clock(hours, timestamp, ampm) {
-  if (ampm) {
-    return ampm === 'am' ? hours : hours + 12;
-  }
-  return ((hours < 12 && timestamp.hour() >= 12) ? hours + 12 : hours);
-}
-
-function scrubData(content) {
+function getType(content) {
   // Sometimes people copy paste other people with discord timestamps
   if (content[0] === '[') {
     return null;
@@ -130,17 +107,65 @@ function scrubData(content) {
     return null;
   }
 
-  // TODO: Add support for "in x minutes" in the future, just drop for now
-  if (content.match(/\b([0-9]{0,2})\s*(minutes|min|m)/i)) {
-    return null;
+  return type;
+}
+
+function adjustTimestamp(timestamp, content) {
+  const inMinutes = getMinutes(content);
+  if (inMinutes > 0) {
+    return moment(timestamp).add(inMinutes, 'minute');
   }
 
+  const time = getTime(content);
+  if (time == null) {
+    return;
+  }
+
+  console.log(time);
+
+  const [, hours = 0, minutes = 0, ampm] = time[0].map(x => x == Number(x) ? Number(x) : !x ? x : x.toLowerCase());
+
+  const hoursAdjusted = to24Clock(hours, timestamp, ampm);
+
+  let timestampAdjusted = moment(timestamp).hour(hoursAdjusted);
+
+  // Midnight edge case. This is a guess to most likely be correct
+  if (!ampm) {
+    const hoursDifference = timestamp.diff(timestampAdjusted, 'hours', true);
+    if (Math.abs(hoursDifference) >= 6) {
+      timestampAdjusted = timestampAdjusted.hour(hoursAdjusted - 12);
+    }
+  }
+
+  const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
+
+  return timestampAdjusted
+    .add(nextDay ? 1 : 0, 'day')
+    .minute(minutes ? minutes : 0);
+}
+
+function getMinutes(content) {
+  const min = content.match(/\b([0-9]{0,2})\s*(minutes|min|m)/i);
+  if (min && min[1] !== undefined) {
+    return parseInt(min[1]);
+  }
+
+  return null;
+}
+
+function getTime(content) {
   const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
-  if (!date.length) {
-    return null;
+  if (date.length > 0) {
+    return date;
   }
+  return null;
+}
 
-  return [type, date];
+function to24Clock(hours, timestamp, ampm) {
+  if (ampm) {
+    return ampm === 'am' ? hours : hours + 12;
+  }
+  return ((hours < 12 && timestamp.hour() >= 12) ? hours + 12 : hours);
 }
 
 module.exports = {
