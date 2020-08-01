@@ -52,23 +52,7 @@ const getWorldBuffs = async (auth) => {
     throw Error(`Could not fetch world buff info from discord; ${worldBuffsResponse.status}`);
   }
 
-  //const messages = await worldBuffsResponse.json();
-
-  const messages = [...await worldBuffsResponse.json(), {
-    content: "12:36 ony",
-    timestamp: "2020-08-01T16:30:01.489000+00:00",
-    author: {
-      username: "test",
-      discriminator: "0000"
-    }
-  }, {
-    content: "8:36 am nef",
-    timestamp: "2020-08-01T03:30:01.489000+00:00",
-    author: {
-      username: "test2",
-      discriminator: "0000"
-    }
-  }]
+  const messages = await worldBuffsResponse.json();
 
   return messages.map(x => {
     return {
@@ -101,16 +85,6 @@ const getWorldBuffs = async (auth) => {
     }
 
     const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
-
-    if (x.author.username === 'test2') {
-      console.log("hoursAdjusted", hoursAdjusted);
-      console.log("ampm", ampm);
-      console.log("timestampAdjusted", timestampAdjusted);
-      console.log("hours", hours);
-      console.log("nextDay", nextDay);
-      console.log("timestamp", timestamp);
-      console.log("timestamp.hour(hoursAdjusted)", timestamp.hour(hoursAdjusted));
-    }
 
     const when = timestampAdjusted
       .add(nextDay ? 1 : 0, 'day')
