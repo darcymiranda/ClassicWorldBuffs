@@ -52,7 +52,23 @@ const getWorldBuffs = async (auth) => {
     throw Error(`Could not fetch world buff info from discord; ${worldBuffsResponse.status}`);
   }
 
-  const messages = await worldBuffsResponse.json();
+  //const messages = await worldBuffsResponse.json();
+
+  const messages = [...await worldBuffsResponse.json(), {
+    content: "12:36 ony",
+    timestamp: "2020-08-01T16:30:01.489000+00:00",
+    author: {
+      username: "test",
+      discriminator: "0000"
+    }
+  }, {
+    content: "8:36 am nef",
+    timestamp: "2020-08-01T03:30:01.489000+00:00",
+    author: {
+      username: "test2",
+      discriminator: "0000"
+    }
+  }]
 
   return messages.map(x => {
     return {
@@ -62,24 +78,32 @@ const getWorldBuffs = async (auth) => {
   }).filter(x => x.timestamp.isAfter(yesterday)).map(x => {
 
     const timeZone = 'America/New_York';
-    const timestamp = moment(x.timestamp).tz(timeZone);
+    const timestamp = x.timestamp.tz(timeZone);
 
-    const content = scrubBadData(x.content);
+    const content = scrubData(x.content);
     if (content == null) {
       return null;
     }
 
     const [type, date] = content;
-    const [, hours = 0, minutes = 0] = date[0].map(Number);
+    const [, hours = 0, minutes = 0, ampm] = date[0].map(x => Number.isInteger(x) ? Number(x) : !x ? x : x.toLowerCase());
 
-    // Translate to 24 hour clock
-    const hoursAdjusted = ((hours < 12 && timestamp.hour() >= 12) ? hours + 12 : hours);
+    const hoursAdjusted = to24Clock(hours, timestamp, ampm);
 
-    const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestamp.hour(hoursAdjusted));
+    let timestampAdjusted = moment(timestamp).hour(hoursAdjusted);
 
-    const when = timestamp
+    // Midnight edge case. This is a guess to most likely be correct
+    if (!ampm) {
+      const hoursDifference = timestamp.diff(timestampAdjusted, 'hours', true);
+      if (Math.abs(hoursDifference) >= 6) {
+        timestampAdjusted = timestampAdjusted.hour(hoursAdjusted - 12);
+      }
+    }
+
+    const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
+
+    const when = timestampAdjusted
       .add(nextDay ? 1 : 0, 'day')
-      .hour(hoursAdjusted)
       .minute(minutes ? minutes : 0);
 
     return {
@@ -89,16 +113,19 @@ const getWorldBuffs = async (auth) => {
         timestamp: x.timestamp,
         original: x.content,
         username: `@${x.author.username}#${x.author.discriminator}`,
-        debug: {
-          hoursAdded: hoursAdjusted,
-          minutesAdded: minutes,
-        }
       }
     }
   }).filter(x => x).sort((a, b) => a.when - b.when);
 };
 
-function scrubBadData(content) {
+function to24Clock(hours, timestamp, ampm) {
+  if (ampm) {
+    return ampm === 'am' ? hours : hours + 12;
+  }
+  return ((hours < 12 && timestamp.hour() >= 12) ? hours + 12 : hours);
+}
+
+function scrubData(content) {
   // Sometimes people copy paste other people with discord timestamps
   if (content[0] === '[') {
     return null;
@@ -124,7 +151,7 @@ function scrubBadData(content) {
     return null;
   }
 
-  const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?/g)];
+  const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
   if (!date.length) {
     return null;
   }
