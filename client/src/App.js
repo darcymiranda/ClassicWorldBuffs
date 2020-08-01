@@ -20,7 +20,7 @@ const cardBgColorByWbKind = {
 
 const iconByWbKind = {
   'ony': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
-  'nef': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
+  'nef': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_black.jpg',
   'hakkar': 'https://wow.zamimg.com/images/wow/icons/large/ability_creature_poison_05.jpg',
   'rend': 'https://wow.zamimg.com/images/wow/icons/large/spell_arcane_teleportorgrimmar.jpg',
 };
