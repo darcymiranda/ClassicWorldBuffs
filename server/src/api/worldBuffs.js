@@ -162,7 +162,6 @@ function getOnCd(content) {
 
 function getMinutes(content) {
   const min = content.match(/in\s([0-9]{0,2})(?!.*(:))/i);
-  console.log(min);
   if (min && min[1] !== undefined) {
     return parseInt(min[1]);
   }
