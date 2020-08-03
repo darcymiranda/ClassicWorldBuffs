@@ -54,36 +54,35 @@ const getWorldBuffs = async (auth) => {
 
   const messages = await worldBuffsResponse.json();
 
-  return messages.map(x => {
-    return {
-      ...x,
-      timestamp: moment(x.timestamp)
-    }
-  }).filter(x => x.timestamp.isAfter(yesterday)).map(x => {
+  return messages
+    .map(x => { return { ...x, timestamp: moment(x.timestamp) } })
+    .filter(x => x.timestamp.isAfter(yesterday))
+    .map(x => {
 
-    const timeZone = 'America/New_York';
-    const timestamp = x.timestamp.tz(timeZone);
+      const timestamp = x.timestamp.tz('America/New_York');
 
-    const type = getType(x.content);
-    if (type == null) {
-      return null;
-    }
-
-    const when = adjustTimestamp(timestamp, x.content);
-    if (when == null) {
-      return null;
-    }
-
-    return {
-      kind: toWorldBuffKind(type[0].toLowerCase()),
-      when: when.toISOString(),
-      meta: {
-        timestamp: x.timestamp,
-        original: x.content,
-        username: `@${x.author.username}#${x.author.discriminator}`,
+      const type = getType(x.content);
+      if (type == null) {
+        return null;
       }
-    }
-  }).filter(x => x).sort((a, b) => a.when - b.when);
+
+      const when = adjustTimestamp(timestamp, x.content);
+      if (when == null) {
+        return null;
+      }
+
+      return {
+        kind: toWorldBuffKind(type[0].toLowerCase()),
+        when: when.toISOString(),
+        meta: {
+          timestamp: x.timestamp,
+          original: x.content,
+          username: `@${x.author.username}#${x.author.discriminator}`,
+        }
+      }
+    })
+    .filter(x => x)
+    .sort((a, b) => a.when - b.when);
 };
 
 function getType(content) {
@@ -110,6 +109,11 @@ function getType(content) {
   return type;
 }
 
+// Usually on tuesdays, someone creates a nicely formated post and just edits new drops in
+function getInfoFromOrganizedPost(content) {
+
+}
+
 function adjustTimestamp(timestamp, content) {
   const inMinutes = getMinutes(content);
   if (inMinutes > 0) {
@@ -120,8 +124,6 @@ function adjustTimestamp(timestamp, content) {
   if (time == null) {
     return;
   }
-
-  console.log(time);
 
   const [, hours = 0, minutes = 0, ampm] = time[0].map(x => x == Number(x) ? Number(x) : !x ? x : x.toLowerCase());
 
@@ -145,7 +147,7 @@ function adjustTimestamp(timestamp, content) {
 }
 
 function getMinutes(content) {
-  const min = content.match(/\b([0-9]{0,2})\s*(minutes|min|m)/i);
+  const min = content.match(/in\s([0-9]{0,2})(?!.*(:))/i);
   if (min && min[1] !== undefined) {
     return parseInt(min[1]);
   }
