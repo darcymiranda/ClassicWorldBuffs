@@ -107,10 +107,10 @@ function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
     nextDay: '[Tomorrow] h:mm A',
     lastDay: '[Yesterday] h:mm A',
   } : {
-    sameDay: 'dddd h:mm A',
-    lastDay: 'dddd h:mm A',
-    lastWeek: 'dddd h:mm A',
-  }
+      sameDay: 'dddd h:mm A',
+      lastDay: 'dddd h:mm A',
+      lastWeek: 'dddd h:mm A',
+    }
   return (
     <Card
       key={worldBuff.meta.timestamp}
@@ -132,7 +132,11 @@ function worldBuffCard(worldBuff, isServerTime, displayRemindMe = true) {
 }
 
 function remindMeLink(title, date) {
-  return `https://vclock.com/timer/#date=${moment(date, { timeZone: localTimeZone }).format('YYYY-MM-DDTHH:mm')}&title=${title.toUpperCase()}+&sound=classic&loop=0`
+  const formattedDate = moment(date, { timeZone: localTimeZone })
+    .subtract(1, 'minute')
+    .format('YYYY-MM-DDTHH:mm');
+  const formattedTitle = `1 Minute Before ${title.charAt(0).toUpperCase() + title.slice(1)}`;
+  return `https://vclock.com/timer/#date=${formattedDate}&title=${formattedTitle}+&sound=classic&loop=0`
 }
 
 export default App;
