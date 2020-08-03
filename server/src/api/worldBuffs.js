@@ -101,7 +101,10 @@ function getType(content) {
   }
 
   // Too lazy to figure out how to ignore these fools
-  if (['I have a nef head to drop on CD'].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
+  if ([
+    'I have a nef head to drop on CD',
+    'until next'
+  ].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
 
@@ -158,6 +161,7 @@ function getOnCd(content) {
 
 function getMinutes(content) {
   const min = content.match(/in\s([0-9]{0,2})(?!.*(:))/i);
+  console.log(min);
   if (min && min[1] !== undefined) {
     return parseInt(min[1]);
   }
