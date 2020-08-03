@@ -16,7 +16,7 @@ const colorByWbKind = {
 };
 const iconByWbKind = {
     'ony': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
-    'nef': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_01.jpg',
+    'nef': 'https://wow.zamimg.com/images/wow/icons/large/inv_misc_head_dragon_black.jpg',
     'hakkar': 'https://wow.zamimg.com/images/wow/icons/large/ability_creature_poison_05.jpg',
     'rend': 'https://wow.zamimg.com/images/wow/icons/large/spell_arcane_teleportorgrimmar.jpg',
 };
@@ -57,11 +57,8 @@ const formatMessage = (wb) => {
             { name: 'When', value: `${formatedDate} server time`, inline: true },
             { name: '\u200B', value: '\u200B' },
             { name: 'Confirmed by', value: wb.meta.username, inline: true },
-            { name: 'Timestamp', value: moment(wb.meta.timestamp).toISOString(), inline: true },
-            { name: 'Original message', value: truncate(wb.meta.original, 100), inline: true },
-        )
-        .setTimestamp()
-        .setFooter("This data is extracted from user based conversation in Earthfury Discord and may be inaccurate.");
+            { name: 'Original message', value: `[${moment(wb.meta.timestamp).toISOString()}]: ${truncate(wb.meta.original, 100)}`, inline: true },
+        );
 };
 
 const truncate = (input, maxLength) => input && input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;
