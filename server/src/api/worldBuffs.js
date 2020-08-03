@@ -58,7 +58,6 @@ const getWorldBuffs = async (auth) => {
     .map(x => { return { ...x, timestamp: moment(x.timestamp) } })
     .filter(x => x.timestamp.isAfter(yesterday))
     .map(x => {
-
       const timestamp = x.timestamp.tz('America/New_York');
 
       const type = getType(x.content);
@@ -170,7 +169,8 @@ function getMinutes(content) {
 }
 
 function getTime(content) {
-  const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
+  // The first negative part of the regex is for when soemone edit's their comment, discord puts an identifier at the front of the message content
+  const date = [...content.matchAll(/[^\<\@\d*\>]([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
   if (date.length > 0) {
     return date;
   }
