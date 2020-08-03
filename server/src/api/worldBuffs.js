@@ -95,9 +95,13 @@ function getType(content) {
   if (content.includes('dropped')) {
     return null;
   }
+  // Ignore these as they can provide everything needed to schedule a buff without actually intending to
+  if (['planned', 'h0h', 'dropped'].some(ignore => content.toLowerCase().includes(ignore))) {
+    return null;
+  }
 
-  // Ignore idiots
-  if (['planned', 'H0H'].some(ignore => content.includes(ignore))) {
+  // Too lazy to figure out how to ignore these fools
+  if (['I have a nef head to drop on CD'].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
 
@@ -144,6 +148,12 @@ function adjustTimestamp(timestamp, content) {
   return timestampAdjusted
     .add(nextDay ? 1 : 0, 'day')
     .minute(minutes ? minutes : 0);
+}
+
+function getOnCd(content) {
+  if (content.toLowerCase().includes('on cd')) {
+
+  }
 }
 
 function getMinutes(content) {
