@@ -100,10 +100,11 @@ function getType(content) {
     return null;
   }
 
-  // Too lazy to figure out how to ignore these fools
+  // Too lazy to figure out how to ignore these fools for now
   if ([
     'I have a nef head to drop on CD',
-    'until next'
+    'until next',
+    'Buff Timers for',
   ].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
