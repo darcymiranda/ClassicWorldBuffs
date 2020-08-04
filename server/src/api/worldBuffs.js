@@ -60,6 +60,11 @@ const getWorldBuffs = async (auth) => {
     .map(x => {
       const timestamp = x.timestamp.tz('America/New_York');
 
+      const scrubbedContent = scrubContent(x.content);
+      if (scrubbedContent == null) {
+        return null;
+      }
+
       const type = getType(x.content);
       if (type == null) {
         return null;
@@ -84,7 +89,7 @@ const getWorldBuffs = async (auth) => {
     .sort((a, b) => a.when - b.when);
 };
 
-function getType(content) {
+function scrubContent(content) {
   // Sometimes people copy paste other people with discord timestamps
   if (content[0] === '[') {
     return null;
@@ -113,12 +118,14 @@ function getType(content) {
     return null;
   }
 
-  const type = content.match(wbTypeRegex);
-  if (!type) {
-    return null;
-  }
+  console.log(content);
 
-  return type;
+  // When soemone edits their comment, discord puts an identifier at the front of the message content
+  return content.replace(/^\<\@\d*\>\s/, '');
+}
+
+function getType(content) {
+  return content.match(wbTypeRegex);
 }
 
 // Usually on tuesdays, someone creates a nicely formated post and just edits new drops in
@@ -146,7 +153,7 @@ function adjustTimestamp(timestamp, content) {
   // Midnight edge case. This is a guess to most likely be correct
   if (!ampm) {
     const hoursDifference = timestamp.diff(timestampAdjusted, 'hours', true);
-    if (Math.abs(hoursDifference) >= 6) {
+    if (Math.abs(hoursDifference) >= 8) {
       timestampAdjusted = timestampAdjusted.hour(hoursAdjusted - 12);
     }
   }
@@ -174,8 +181,7 @@ function getMinutes(content) {
 }
 
 function getTime(content) {
-  // The first negative part of the regex is for when soemone edit's their comment, discord puts an identifier at the front of the message content
-  const date = [...content.matchAll(/[^\<\@\d*\>]([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
+  const date = [...content.matchAll(/([0-1]?[0-9]|2[0-3])[:h]?([0-5][0-9])?\s*([APap][Mm])?/g)];
   if (date.length > 0) {
     return date;
   }
@@ -186,7 +192,7 @@ function to24Clock(hours, timestamp, ampm) {
   if (ampm) {
     return ampm === 'am' ? hours : hours + 12;
   }
-  return ((hours < 12 && timestamp.hour() >= 12) ? hours + 12 : hours);
+  return ((hours < 12 && (timestamp.hour() >= 12 || timestamp.hour() < hours + 12)) ? hours + 12 : hours);
 }
 
 module.exports = {
