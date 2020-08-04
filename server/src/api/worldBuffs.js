@@ -65,12 +65,12 @@ const getWorldBuffs = async (auth) => {
         return null;
       }
 
-      const type = getType(x.content);
+      const type = getType(scrubbedContent);
       if (type == null) {
         return null;
       }
 
-      const when = adjustTimestamp(timestamp, x.content);
+      const when = adjustTimestamp(timestamp, scrubbedContent);
       if (when == null) {
         return null;
       }
@@ -80,7 +80,7 @@ const getWorldBuffs = async (auth) => {
         when: when.toISOString(),
         meta: {
           timestamp: x.timestamp,
-          original: x.content,
+          original: scrubbedContent,
           username: `@${x.author.username}#${x.author.discriminator}`,
         }
       }
@@ -117,8 +117,6 @@ function scrubContent(content) {
   ].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
-
-  console.log(content);
 
   // When soemone edits their comment, discord puts an identifier at the front of the message content
   return content.replace(/^\<\@\d*\>\s/, '');
@@ -159,6 +157,13 @@ function adjustTimestamp(timestamp, content) {
   }
 
   const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
+  if (content == 'Dropping Nef on CD - 6:23 ST') {
+    console.log('hours', hours);
+    console.log('minutes', minutes);
+    console.log('nextDay', nextDay);
+    console.log('hoursAdjusted', hoursAdjusted);
+    console.log('timestampAdjusted', timestampAdjusted);
+  }
 
   return timestampAdjusted
     .add(nextDay ? 1 : 0, 'day')
