@@ -90,6 +90,11 @@ function getType(content) {
     return null;
   }
 
+  // Never trust people asking questions
+  if (content.slice(-1) === '?') {
+    return null;
+  }
+
   // Ignore people say when something was dropped
   if (content.includes('dropped')) {
     return null;
