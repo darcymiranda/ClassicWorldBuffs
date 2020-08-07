@@ -114,6 +114,8 @@ function scrubContent(content) {
     'I have a nef head to drop on CD',
     'until next',
     'Buff Timers for',
+    '(nothing confirmed)',
+    'Confirmed Drops:',
   ].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
@@ -157,13 +159,6 @@ function adjustTimestamp(timestamp, content) {
   }
 
   const nextDay = hoursAdjusted > 0 && timestamp.isAfter(timestampAdjusted);
-  if (content == 'Dropping Nef on CD - 6:23 ST') {
-    console.log('hours', hours);
-    console.log('minutes', minutes);
-    console.log('nextDay', nextDay);
-    console.log('hoursAdjusted', hoursAdjusted);
-    console.log('timestampAdjusted', timestampAdjusted);
-  }
 
   return timestampAdjusted
     .add(nextDay ? 1 : 0, 'day')
