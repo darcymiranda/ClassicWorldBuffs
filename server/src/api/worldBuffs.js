@@ -178,11 +178,6 @@ function getMinutes(content) {
     return parseInt(min[1]);
   }
 
-  const min = content.match(/\s([0-9]{0,2})(?!.*(:))/i);
-  if (min && min[1] !== undefined) {
-    return parseInt(min[1]);
-  }
-
   return null;
 }
 
