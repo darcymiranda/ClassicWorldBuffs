@@ -6,7 +6,7 @@ require('dotenv-flow').config();
 const testChannel = '736808196127195216';
 const worldBuffsChannel = '715234730962059334';
 
-const interval = 3;
+const interval = 2;
 
 const colorByWbKind = {
     'ony': '#B54055',

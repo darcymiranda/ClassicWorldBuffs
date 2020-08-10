@@ -116,6 +116,7 @@ function scrubContent(content) {
     'Buff Timers for',
     '(nothing confirmed)',
     'Confirmed Drops:',
+    ' Available ',
   ].map(x => x.toLowerCase()).some(x => content.toLowerCase().includes(x))) {
     return null;
   }
@@ -173,6 +174,11 @@ function getOnCd(content) {
 
 function getMinutes(content) {
   const min = content.match(/in\s([0-9]{0,2})(?!.*(:))/i);
+  if (min && min[1] !== undefined) {
+    return parseInt(min[1]);
+  }
+
+  const min = content.match(/\s([0-9]{0,2})(?!.*(:))/i);
   if (min && min[1] !== undefined) {
     return parseInt(min[1]);
   }
