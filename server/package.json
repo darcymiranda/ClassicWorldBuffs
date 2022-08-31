@@ -11,7 +11,7 @@
     "fastify-static": "^3.2.0",
     "moment": "^2.27.0",
     "moment-duration-format": "^2.3.2",
-    "moment-timezone": "^0.5.31",
+    "moment-timezone": "^0.5.35",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {
