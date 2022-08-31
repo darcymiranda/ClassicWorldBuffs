@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "moment": "^2.27.0",
-    "moment-timezone": "^0.5.31"
+    "moment-timezone": "^0.5.35"
   },
   "devDependencies": {
     "concurrently": "^5.2.0"
