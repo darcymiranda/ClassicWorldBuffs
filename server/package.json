@@ -6,7 +6,7 @@
     "abstract-cache": "^1.0.1",
     "discord.js": "^12.2.0",
     "dotenv-flow": "^3.2.0",
-    "fastify": "^3.0.2",
+    "fastify": "^3.29.4",
     "fastify-cors": "^4.0.0",
     "fastify-static": "^3.2.0",
     "moment": "^2.27.0",
